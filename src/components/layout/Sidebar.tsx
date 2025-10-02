@@ -12,6 +12,7 @@ import {
   Users,
   Package,
   Receipt,
+  Wallet,
 } from "lucide-react";
 
 const navItems = [
@@ -21,6 +22,7 @@ const navItems = [
   { href: "/sales", label: "Sales", icon: Receipt },
   { href: "/orders", label: "Orders", icon: ShoppingCart },
   { href: "/finance", label: "Finance", icon: DollarSign },
+  { href: "/expenses", label: "Expenses", icon: Wallet },
   { href: "/reports", label: "Reports", icon: FileText },
   { href: "/settings", label: "Settings", icon: Settings },
   { href: "/users", label: "Users", icon: Users },
@@ -31,7 +33,7 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
+    <aside className="w-64 bg-white dark:bg-[#0b1220] border-r border-gray-200 dark:border-gray-700 flex flex-col">
       <div className="p-4 text-2xl font-bold text-gray-800 dark:text-gray-100">
         InvFin
       </div>

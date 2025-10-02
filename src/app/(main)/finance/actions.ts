@@ -1,6 +1,6 @@
 "use server";
 
-import { sql, getDb } from "@/lib/db";
+import { getDb } from "@/lib/db";
 
 export async function getFinanceSummary() {
   const pool = await getDb();
@@ -57,10 +57,9 @@ export async function recordCashUsage(reason: string, amount: number) {
 export async function getRecentHandovers() {
   const pool = await getDb();
   const result = await pool.request().query(`
-    SELECT TOP 10 H.Id, H.Amount, H.HandoverDate, U.Name AS ManagerName
-    FROM Handovers H
-    JOIN Users U ON H.UserId = U.Id
-    ORDER BY H.HandoverDate DESC
+    SELECT TOP 10 Id, Amount, HandoverDate, UserId
+    FROM Handovers
+    ORDER BY HandoverDate DESC
   `);
   return result.recordset;
 }
