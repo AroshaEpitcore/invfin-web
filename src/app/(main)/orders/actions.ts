@@ -74,9 +74,7 @@ export async function getVariant(productId: string, sizeId: string, colorId: str
       JOIN Products p ON p.Id = v.ProductId
       WHERE v.ProductId=@pid AND v.SizeId=@sid AND v.ColorId=@cid
   `);
-  return res.recordset[0] as
-    | { VariantId: string; InStock: number; SellingPrice: number }
-    | undefined;
+  return res.recordset[0];
 }
 
 /* Recently saved orders (cards) */
@@ -130,11 +128,11 @@ export async function createOrder(payload: OrderPayload) {
 
   const pool = await getDb();
 
-  /* Prepare a TVP for dbo.udt_OrderItems */
   const tvp = new sql.Table("dbo.udt_OrderItems");
   tvp.columns.add("VariantId", sql.UniqueIdentifier, { nullable: false });
   tvp.columns.add("Qty", sql.Int, { nullable: false });
   tvp.columns.add("SellingPrice", sql.Decimal(18, 2), { nullable: false });
+
   for (const it of payload.Items) {
     tvp.rows.add(it.VariantId, it.Qty, it.SellingPrice);
   }
@@ -152,8 +150,8 @@ export async function createOrder(payload: OrderPayload) {
   req.input("Note", NVarChar(1000), payload.Note ?? null);
   req.input("Items", tvp);
 
+  // call stored procedure that ONLY inserts order + items
   const out = await req.execute("dbo.sp_create_order");
-  // sp returns a result set with OrderId
   const OrderId = out.recordset?.[0]?.OrderId as string | undefined;
   if (!OrderId) throw new Error("Order creation failed.");
   return { OrderId };
