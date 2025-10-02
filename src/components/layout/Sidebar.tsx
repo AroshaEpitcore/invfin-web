@@ -10,16 +10,21 @@ import {
   FileText,
   Settings,
   Users,
+  Package,
+  Receipt,
 } from "lucide-react";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/inventory/products", label: "Inventory", icon: Boxes },
-  { href: "/sales", label: "Sales", icon: ShoppingCart },
+  { href: "/inventory", label: "Inventory", icon: Boxes },
+  { href: "/stocks", label: "Stocks", icon: Package },
+  { href: "/sales", label: "Sales", icon: Receipt },
+  { href: "/orders", label: "Orders", icon: ShoppingCart },
   { href: "/finance", label: "Finance", icon: DollarSign },
   { href: "/reports", label: "Reports", icon: FileText },
   { href: "/settings", label: "Settings", icon: Settings },
   { href: "/users", label: "Users", icon: Users },
+  
 ];
 
 export default function Sidebar() {
@@ -39,10 +44,10 @@ export default function Sidebar() {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-3 px-3 py-2 rounded-md text-base font-medium transition-colors ${
                     active
                       ? "bg-gray-200 dark:bg-gray-700 text-primary"
-                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      : "text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
                   }`}
                 >
                   <Icon className="h-5 w-5" />

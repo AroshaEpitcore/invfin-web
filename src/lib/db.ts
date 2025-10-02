@@ -19,3 +19,5 @@ export async function getDb() {
   }
   return pool;
 }
+export { sql };
+
