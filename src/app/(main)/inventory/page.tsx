@@ -165,15 +165,15 @@ export default function InventoryColorsPage() {
   }
 
   return (
-    <div className="p-6 space-y-8 text-gray-900 dark:text-white">
+    <div className="space-y-8 text-gray-900 dark:text-white">
       <Toaster position="top-right" />
 
       {/* Header */}
-      <div className="flex items-center gap-3">
+      <div className="!m-0 flex items-center gap-3">
         <div className="bg-primary/20 p-3 rounded-lg">
           <Package className="w-6 h-6 text-primary" />
         </div>
-        <h1 className="text-3xl font-bold">Inventory</h1>
+        <h1 className="text-xl font-bold">Inventory</h1>
       </div>
 
       {/* ================= Product Quantities (by Category) ================= */}
@@ -220,7 +220,7 @@ export default function InventoryColorsPage() {
                     <div className="font-semibold text-gray-900 dark:text-white">{p.Name}</div>
                     {p.SKU && <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">SKU: {p.SKU}</div>}
                   </div>
-                  <div className="text-3xl font-bold text-primary">{p.TotalQty}</div>
+                  <div className="text-xl font-bold text-primary">{p.TotalQty}</div>
                 </div>
                 {p.LowStockVariants > 0 && (
                   <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400 text-xs font-medium">

@@ -65,7 +65,7 @@ export default function FinancePage() {
   }
 
   return (
-    <div className="p-6 text-gray-900 dark:text-white">
+    <div className="text-gray-900 dark:text-white">
       <Toaster position="top-right" />
 
       {/* Header */}
@@ -73,7 +73,7 @@ export default function FinancePage() {
         <div className="bg-primary/20 p-3 rounded-lg">
           <Wallet className="w-6 h-6 text-primary" />
         </div>
-        <h1 className="text-3xl font-bold">Finance Dashboard</h1>
+        <h1 className="text-xl font-bold">Finance</h1>
       </div>
 
       {/* Summary Cards */}

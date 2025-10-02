@@ -87,14 +87,14 @@ export default function ExpensesPage() {
   }
 
   return (
-    <div className="p-6 text-gray-900 dark:text-white">
+    <div className="text-gray-900 dark:text-white">
       <Toaster position="top-right" />
 
       <div className="flex items-center gap-3 mb-8">
         <div className="bg-primary/20 p-3 rounded-lg">
           <PlusCircle className="w-6 h-6 text-primary" />
         </div>
-        <h1 className="text-3xl font-bold">Expenses</h1>
+        <h1 className="text-xl font-bold">Expenses</h1>
       </div>
 
       {/* Form */}
@@ -107,27 +107,27 @@ export default function ExpensesPage() {
           placeholder="Category"
           value={form.category}
           onChange={(e) => setForm({ ...form, category: e.target.value })}
-          className="input"
+          className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
         />
         <input
           type="text"
           placeholder="Description"
           value={form.description}
           onChange={(e) => setForm({ ...form, description: e.target.value })}
-          className="input"
+          className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
         />
         <input
           type="number"
           placeholder="Amount"
           value={form.amount}
           onChange={(e) => setForm({ ...form, amount: e.target.value })}
-          className="input"
+          className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
         />
         <input
           type="date"
           value={form.date}
           onChange={(e) => setForm({ ...form, date: e.target.value })}
-          className="input"
+          className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
         />
         <button
           type="submit"

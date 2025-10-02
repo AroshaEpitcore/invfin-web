@@ -15,7 +15,7 @@ export default function Topbar() {
   }, [darkMode]);
 
   return (
-    <header className="h-14 flex items-center justify-between bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4">
+    <header className="h-14 flex items-center justify-between bg-white/70 dark:bg-gray-900/70 backdrop-blur border-b px-4">
       <h1 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
         Dashboard
       </h1>

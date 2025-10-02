@@ -155,7 +155,7 @@ export default function StocksPage() {
   }
 
   return (
-    <div className="p-6 text-gray-900 dark:text-white">
+    <div className="text-gray-900 dark:text-white">
       <Toaster position="top-right" />
 
       {/* Header */}
@@ -163,7 +163,7 @@ export default function StocksPage() {
         <div className="bg-primary/20 p-3 rounded-lg">
           <Package className="w-6 h-6 text-primary" />
         </div>
-        <h1 className="text-3xl font-bold">Stock Management</h1>
+        <h1 className="text-xl font-bold">Stock Management</h1>
       </div>
 
       {/* Categories Section */}

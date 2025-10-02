@@ -26,15 +26,14 @@ const navItems = [
   { href: "/reports", label: "Reports", icon: FileText },
   { href: "/settings", label: "Settings", icon: Settings },
   { href: "/users", label: "Users", icon: Users },
-  
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 bg-white dark:bg-[#0b1220] border-r border-gray-200 dark:border-gray-700 flex flex-col">
-      <div className="p-4 text-2xl font-bold text-gray-800 dark:text-gray-100">
+    <aside className="w-64 bg-[#0b1220] flex flex-col">
+      <div className="p-4 text-2xl font-bold text-gray-100">
         InvFin
       </div>
       <nav className="flex-1">
@@ -48,8 +47,8 @@ export default function Sidebar() {
                   href={item.href}
                   className={`flex items-center gap-3 px-3 py-2 rounded-md text-base font-medium transition-colors ${
                     active
-                      ? "bg-gray-200 dark:bg-gray-700 text-primary"
-                      : "text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                      ? "bg-gray-700 text-primary"
+                      : "text-gray-300 hover:bg-gray-700 hover:text-white"
                   }`}
                 >
                   <Icon className="h-5 w-5" />

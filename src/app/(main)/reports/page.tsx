@@ -125,7 +125,7 @@ export default function ReportPage() {
   }
 
   return (
-    <div className="p-6 text-gray-900 dark:text-white">
+    <div className="text-gray-900 dark:text-white">
       <Toaster position="top-right" />
 
       {/* Header */}
@@ -133,7 +133,7 @@ export default function ReportPage() {
         <div className="bg-primary/20 p-3 rounded-lg">
           <BarChart2 className="w-6 h-6 text-primary" />
         </div>
-        <h1 className="text-3xl font-bold">Reports</h1>
+        <h1 className="text-xl font-bold">Reports</h1>
       </div>
 
       {/* Filters */}

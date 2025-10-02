@@ -223,7 +223,7 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="p-6 text-gray-900 dark:text-white">
+    <div className="text-gray-900 dark:text-white">
       <Toaster position="top-right" />
 
       {/* Header */}
@@ -231,7 +231,7 @@ export default function OrdersPage() {
         <div className="bg-primary/20 p-3 rounded-lg">
           <Package className="w-6 h-6 text-primary" />
         </div>
-        <h1 className="text-2xl font-bold">Orders</h1>
+        <h1 className="text-xl font-bold">Orders</h1>
       </div>
 
       {/* Customer + Order meta */}

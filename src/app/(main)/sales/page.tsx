@@ -104,14 +104,14 @@ export default function SalesPage() {
   }
 
   return (
-    <div className="p-6 text-gray-900 dark:text-white">
+    <div className="text-gray-900 dark:text-white">
       <Toaster position="top-right" />
 
       <div className="flex items-center gap-3 mb-6">
         <div className="bg-primary/20 p-3 rounded-lg">
           <Package className="w-6 h-6 text-primary" />
         </div>
-        <h1 className="text-2xl font-bold">Sales</h1>
+        <h1 className="text-xl font-bold">Sales</h1>
       </div>
 
       {/* Filters */}
