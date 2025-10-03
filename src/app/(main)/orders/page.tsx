@@ -13,7 +13,7 @@ import {
   type OrderItemInput,
   type OrderPayload,
 } from "./actions";
-import { Package, Plus, Trash2, Clipboard, CheckCircle2 } from "lucide-react";
+import { ShoppingBag, Plus, Trash2, Clipboard, CheckCircle2, User, Phone, MapPin, Calendar, FileText } from "lucide-react";
 
 type Opt = { Id: string; Name: string };
 
@@ -47,12 +47,8 @@ export default function OrdersPage() {
   const [customer, setCustomer] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
-  const [status, setStatus] = useState<
-    "Pending" | "Paid" | "Partial" | "Canceled"
-  >("Pending");
-  const [orderDate, setOrderDate] = useState<string>(() =>
-    new Date().toISOString().slice(0, 10)
-  );
+  const [status, setStatus] = useState<"Pending" | "Paid" | "Partial" | "Canceled">("Pending");
+  const [orderDate, setOrderDate] = useState<string>(() => new Date().toISOString().slice(0, 10));
   const [discount, setDiscount] = useState<number>(0);
   const [deliveryFee, setDeliveryFee] = useState<number>(0);
   const [note, setNote] = useState("");
@@ -176,14 +172,8 @@ export default function OrdersPage() {
     setLines((prev) => prev.map((l) => (l.key === key ? { ...l, price } : l)));
   }
 
-  const subtotal = useMemo(
-    () => lines.reduce((s, l) => s + l.qty * l.price, 0),
-    [lines]
-  );
-  const total = useMemo(
-    () => Math.max(0, subtotal - (discount || 0) + (deliveryFee || 0)),
-    [subtotal, discount, deliveryFee]
-  );
+  const subtotal = useMemo(() => lines.reduce((s, l) => s + l.qty * l.price, 0), [lines]);
+  const total = useMemo(() => Math.max(0, subtotal - (discount || 0) + (deliveryFee || 0)), [subtotal, discount, deliveryFee]);
 
   async function saveOrder() {
     if (!lines.length) {
@@ -227,6 +217,9 @@ export default function OrdersPage() {
       await createOrder(payload);
       toast.success("Order saved");
       setLines([]);
+      setCustomer("");
+      setPhone("");
+      setAddress("");
       setDiscount(0);
       setDeliveryFee(0);
       setNote("");
@@ -239,16 +232,15 @@ export default function OrdersPage() {
   function copySummary() {
     const s = [
       `Customer: ${customer}`,
+      `Phone: ${phone}`,
       `Date: ${orderDate}`,
       `Status: ${status}`,
-      `Subtotal: ${subtotal.toFixed(2)}`,
-      `Discount: ${Number(discount || 0).toFixed(2)}`,
-      `Delivery: ${Number(deliveryFee || 0).toFixed(2)}`,
-      `Total: ${total.toFixed(2)}`,
+      `Subtotal: Rs ${subtotal.toFixed(2)}`,
+      `Discount: Rs ${Number(discount || 0).toFixed(2)}`,
+      `Delivery: Rs ${Number(deliveryFee || 0).toFixed(2)}`,
+      `Total: Rs ${total.toFixed(2)}`,
       `Items:`,
-      ...lines.map(
-        (l) => ` - ${l.variant?.VariantId}  x${l.qty}  @${l.price.toFixed(2)}`
-      ),
+      ...lines.map((l) => ` - ${l.variant?.VariantId}  x${l.qty}  @Rs ${l.price.toFixed(2)}`),
       note ? `Note: ${note}` : "",
     ].join("\n");
     navigator.clipboard.writeText(s).then(
@@ -262,171 +254,170 @@ export default function OrdersPage() {
       <Toaster position="top-right" />
 
       {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex items-center gap-3 mb-8">
         <div className="bg-primary/20 p-3 rounded-lg">
-          <Package className="w-6 h-6 text-primary" />
+          <ShoppingBag className="w-6 h-6 text-primary" />
         </div>
         <h1 className="text-xl font-bold">Orders</h1>
       </div>
 
       {/* Customer + Order meta */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <label className="flex flex-col">
-          <span className="text-sm mb-1">Customer Name</span>
-          <input
-            placeholder="Customer name"
-            value={customer}
-            onChange={(e) => setCustomer(e.target.value)}
-            className="rounded-lg border p-3 bg-gray-50 dark:bg-gray-800"
-          />
-        </label>
-        <label className="flex flex-col">
-          <span className="text-sm mb-1">Phone</span>
-          <input
-            placeholder="Phone"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className="rounded-lg border p-3 bg-gray-50 dark:bg-gray-800"
-          />
-        </label>
-        <label className="flex flex-col">
-          <span className="text-sm mb-1">Address</span>
-          <input
-            placeholder="Address"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            className="rounded-lg border p-3 bg-gray-50 dark:bg-gray-800"
-          />
-        </label>
-        <label className="flex flex-col">
-          <span className="text-sm mb-1">Status</span>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value as any)}
-            className="rounded-lg border p-3 bg-gray-50 dark:bg-gray-800"
-          >
-            <option value="Pending">Pending</option>
-            <option value="Paid">Paid</option>
-            <option value="Partial">Partial</option>
-            <option value="Canceled">Canceled</option>
-          </select>
-        </label>
-        <label className="flex flex-col">
-          <span className="text-sm mb-1">Order Date</span>
-          <input
-            type="date"
-            value={orderDate}
-            onChange={(e) => setOrderDate(e.target.value)}
-            className="rounded-lg border p-3 bg-gray-50 dark:bg-gray-800"
-          />
-        </label>
-        <label className="flex flex-col">
-          <span className="text-sm mb-1">Note</span>
-          <input
-            placeholder="Note (optional)"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            className="rounded-lg border p-3 bg-gray-50 dark:bg-gray-800"
-          />
-        </label>
+      <section className="bg-white dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-xl p-6 mb-8">
+        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          <User className="w-5 h-5 text-primary" />
+          Customer Information
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Customer Name</label>
+            <input
+              placeholder="Enter customer name"
+              value={customer}
+              onChange={(e) => setCustomer(e.target.value)}
+              className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Phone</label>
+            <input
+              placeholder="Enter phone number"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Address</label>
+            <input
+              placeholder="Enter address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Payment Status</label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value as any)}
+              className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            >
+              <option value="Pending">Pending</option>
+              <option value="Paid">Paid</option>
+              <option value="Partial">Partial</option>
+              <option value="Canceled">Canceled</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Order Date</label>
+            <input
+              type="date"
+              value={orderDate}
+              onChange={(e) => setOrderDate(e.target.value)}
+              className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Note (Optional)</label>
+            <input
+              placeholder="Add a note"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            />
+          </div>
+        </div>
       </section>
 
       {/* Add line */}
-      <section className="bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-xl p-4 mb-6">
-        <h2 className="font-semibold mb-3">Add Line</h2>
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
-          <label className="flex flex-col">
-            <span className="text-sm mb-1">Category</span>
+      <section className="bg-white dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-xl p-6 mb-8">
+        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          <Plus className="w-5 h-5 text-primary" />
+          Add Line Item
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</label>
             <select
               value={selCat}
               onChange={(e) => onPickCategory(e.target.value)}
-              className="rounded-lg border p-3 bg-gray-50 dark:bg-gray-800"
+              className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
             >
-              <option value="">Category</option>
+              <option value="">Select</option>
               {categories.map((c) => (
-                <option key={c.Id} value={c.Id}>
-                  {c.Name}
-                </option>
+                <option key={c.Id} value={c.Id}>{c.Name}</option>
               ))}
             </select>
-          </label>
-          <label className="flex flex-col">
-            <span className="text-sm mb-1">Product</span>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Product</label>
             <select
               value={selProd}
               onChange={(e) => onPickProduct(e.target.value)}
               disabled={!selCat}
-              className="rounded-lg border p-3 bg-gray-50 dark:bg-gray-800"
+              className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:opacity-50"
             >
-              <option value="">Product</option>
+              <option value="">Select</option>
               {products.map((p) => (
-                <option key={p.Id} value={p.Id}>
-                  {p.Name}
-                </option>
+                <option key={p.Id} value={p.Id}>{p.Name}</option>
               ))}
             </select>
-          </label>
-          <label className="flex flex-col">
-            <span className="text-sm mb-1">Size</span>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Size</label>
             <select
               value={selSize}
               onChange={(e) => onPickSize(e.target.value)}
               disabled={!selProd}
-              className="rounded-lg border p-3 bg-gray-50 dark:bg-gray-800"
+              className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:opacity-50"
             >
-              <option value="">Size</option>
+              <option value="">Select</option>
               {sizes.map((s) => (
-                <option key={s.Id} value={s.Id}>
-                  {s.Name}
-                </option>
+                <option key={s.Id} value={s.Id}>{s.Name}</option>
               ))}
             </select>
-          </label>
-          <label className="flex flex-col">
-            <span className="text-sm mb-1">Color</span>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Color</label>
             <select
               value={selColor}
               onChange={(e) => onPickColor(e.target.value)}
               disabled={!selSize}
-              className="rounded-lg border p-3 bg-gray-50 dark:bg-gray-800"
+              className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:opacity-50"
             >
-              <option value="">Color</option>
+              <option value="">Select</option>
               {colors.map((c) => (
-                <option key={c.Id} value={c.Id}>
-                  {c.Name}
-                </option>
+                <option key={c.Id} value={c.Id}>{c.Name}</option>
               ))}
             </select>
-          </label>
-          <label className="flex flex-col">
-            <span className="text-sm mb-1">Quantity</span>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Quantity</label>
             <input
               type="number"
               min={1}
               value={lineQty}
-              onChange={(e) =>
-                setLineQty(Math.max(1, parseInt(e.target.value || "1")))
-              }
-              className="rounded-lg border p-3 bg-gray-50 dark:bg-gray-800"
+              onChange={(e) => setLineQty(Math.max(1, parseInt(e.target.value || "1")))}
+              className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
               placeholder="Qty"
             />
-          </label>
-          <label className="flex flex-col">
-            <span className="text-sm mb-1">Sell Price</span>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Price (Rs)</label>
             <input
               type="number"
               step="0.01"
               value={linePrice}
               onChange={(e) => setLinePrice(parseFloat(e.target.value || "0"))}
-              className="rounded-lg border p-3 bg-gray-50 dark:bg-gray-800"
-              placeholder="Sell price"
+              className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+              placeholder="Price"
             />
-          </label>
+          </div>
         </div>
-        <div className="mt-3 flex justify-end">
+        <div className="mt-4 flex justify-end">
           <button
             onClick={addLine}
-            className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+            className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg flex items-center gap-2 font-semibold transition-colors"
           >
             <Plus className="w-4 h-4" /> Add Item
           </button>
@@ -434,75 +425,62 @@ export default function OrdersPage() {
       </section>
 
       {/* Cart lines */}
-      <section className="bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-xl p-4 mb-6">
-        <h2 className="font-semibold mb-3">Items</h2>
+      <section className="bg-white dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden mb-8">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-lg font-semibold flex items-center gap-2">
+            <ShoppingBag className="w-5 h-5 text-primary" />
+            Order Items
+          </h2>
+        </div>
         {lines.length === 0 ? (
-          <p className="text-sm text-gray-500">No items yet. Add from above.</p>
+          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+            <ShoppingBag className="w-12 h-12 mx-auto mb-3 opacity-50" />
+            <p>No items yet. Add items from above.</p>
+          </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-100 dark:bg-gray-700/40">
+            <table className="w-full">
+              <thead className="bg-gray-100 dark:bg-gray-700/50">
                 <tr>
-                  <th className="p-3 text-left">Variant</th>
-                  <th className="p-3 text-center">In Stock</th>
-                  <th className="p-3 text-center">Sell Price</th>
-                  <th className="p-3 text-center">Qty</th>
-                  <th className="p-3 text-center">Line Total</th>
-                  <th className="p-3 text-center">Actions</th>
+                  <th className="p-4 text-left font-semibold text-gray-700 dark:text-gray-300">Variant</th>
+                  <th className="p-4 text-center font-semibold text-gray-700 dark:text-gray-300">In Stock</th>
+                  <th className="p-4 text-center font-semibold text-gray-700 dark:text-gray-300">Price (Rs)</th>
+                  <th className="p-4 text-center font-semibold text-gray-700 dark:text-gray-300">Qty</th>
+                  <th className="p-4 text-center font-semibold text-gray-700 dark:text-gray-300">Total (Rs)</th>
+                  <th className="p-4 text-center font-semibold text-gray-700 dark:text-gray-300">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {lines.map((l) => (
-                  <tr
-                    key={l.key}
-                    className="border-t border-gray-200 dark:border-gray-700"
-                  >
-                    <td className="p-3">
-                      <div className="text-xs text-gray-500">VariantId</div>
-                      <div className="font-mono">{l.variant?.VariantId}</div>
+                  <tr key={l.key} className="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                    <td className="p-4">
+                      <div className="text-xs text-gray-500 dark:text-gray-400">Variant ID</div>
+                      <div className="font-mono text-sm">{l.variant?.VariantId}</div>
                     </td>
-                    <td className="p-3 text-center">
-                      {l.variant?.InStock ?? 0}
+                    <td className="p-4 text-center">{l.variant?.InStock ?? 0}</td>
+                    <td className="p-4 text-center">
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={l.price}
+                        onChange={(e) => updateLinePrice(l.key, parseFloat(e.target.value || "0"))}
+                        className="w-24 text-center bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-2 py-1"
+                      />
                     </td>
-                    <td className="p-3 text-center">
-                      <label className="flex flex-col">
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={l.price}
-                          onChange={(e) =>
-                            updateLinePrice(
-                              l.key,
-                              parseFloat(e.target.value || "0")
-                            )
-                          }
-                          className="w-24 text-center border rounded px-2 py-1 bg-gray-50 dark:bg-gray-800"
-                        />
-                      </label>
+                    <td className="p-4 text-center">
+                      <input
+                        type="number"
+                        min={1}
+                        value={l.qty}
+                        onChange={(e) => updateLineQty(l.key, Math.max(1, parseInt(e.target.value || "1")))}
+                        className="w-20 text-center bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-2 py-1"
+                      />
                     </td>
-                    <td className="p-3 text-center">
-                      <label className="flex flex-col">
-                        <input
-                          type="number"
-                          min={1}
-                          value={l.qty}
-                          onChange={(e) =>
-                            updateLineQty(
-                              l.key,
-                              Math.max(1, parseInt(e.target.value || "1"))
-                            )
-                          }
-                          className="w-20 text-center border rounded px-2 py-1 bg-gray-50 dark:bg-gray-800"
-                        />
-                      </label>
-                    </td>
-                    <td className="p-3 text-center">
-                      {(l.qty * l.price).toFixed(2)}
-                    </td>
-                    <td className="p-3 text-center">
+                    <td className="p-4 text-center font-semibold">{(l.qty * l.price).toFixed(2)}</td>
+                    <td className="p-4 text-center">
                       <button
                         onClick={() => removeLine(l.key)}
-                        className="text-red-600 hover:text-red-700 px-2 py-1 rounded inline-flex items-center gap-1"
+                        className="text-red-600 hover:text-red-700 px-3 py-1.5 rounded-lg inline-flex items-center gap-1 transition-colors"
                       >
                         <Trash2 className="w-4 h-4" /> Remove
                       </button>
@@ -510,59 +488,46 @@ export default function OrdersPage() {
                   </tr>
                 ))}
               </tbody>
-              <tfoot>
+              <tfoot className="bg-gray-50 dark:bg-gray-700/30">
                 <tr>
-                  <td colSpan={6} className="p-3">
-                    <div className="flex flex-col md:flex-row gap-3 items-end justify-end">
-                      <div className="grid grid-cols-2 gap-2 items-center">
-                        <label className="text-sm text-gray-600 dark:text-gray-300">
-                          Subtotal
-                        </label>
-                        <div className="text-right font-semibold">
-                          {subtotal.toFixed(2)}
-                        </div>
-                        <label className="text-sm text-gray-600 dark:text-gray-300">
-                          Discount
-                        </label>
+                  <td colSpan={6} className="p-6">
+                    <div className="flex flex-col lg:flex-row gap-6 items-end justify-between">
+                      <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+                        <div className="text-gray-600 dark:text-gray-300">Subtotal:</div>
+                        <div className="text-right font-semibold">Rs {subtotal.toFixed(2)}</div>
+                        
+                        <div className="text-gray-600 dark:text-gray-300">Discount:</div>
                         <input
                           type="number"
                           step="0.01"
                           value={discount}
-                          onChange={(e) =>
-                            setDiscount(parseFloat(e.target.value || "0"))
-                          }
-                          className="w-32 text-right border rounded px-2 py-1 bg-gray-50 dark:bg-gray-800"
+                          onChange={(e) => setDiscount(parseFloat(e.target.value || "0"))}
+                          className="w-32 text-right bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1.5"
                         />
-                        <label className="text-sm text-gray-600 dark:text-gray-300">
-                          Delivery
-                        </label>
+                        
+                        <div className="text-gray-600 dark:text-gray-300">Delivery Fee:</div>
                         <input
                           type="number"
                           step="0.01"
                           value={deliveryFee}
-                          onChange={(e) =>
-                            setDeliveryFee(parseFloat(e.target.value || "0"))
-                          }
-                          className="w-32 text-right border rounded px-2 py-1 bg-gray-50 dark:bg-gray-800"
+                          onChange={(e) => setDeliveryFee(parseFloat(e.target.value || "0"))}
+                          className="w-32 text-right bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1.5"
                         />
-                        <label className="text-sm text-gray-900 dark:text-white">
-                          Total
-                        </label>
-                        <div className="text-right text-lg font-bold">
-                          {total.toFixed(2)}
-                        </div>
+                        
+                        <div className="text-lg font-bold text-gray-900 dark:text-white">Total:</div>
+                        <div className="text-right text-xl font-bold text-primary">Rs {total.toFixed(2)}</div>
                       </div>
 
-                      <div className="flex gap-2">
+                      <div className="flex gap-3">
                         <button
                           onClick={copySummary}
-                          className="border px-4 py-2 rounded flex items-center gap-2"
+                          className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white px-5 py-3 rounded-lg flex items-center gap-2 font-medium transition-colors"
                         >
                           <Clipboard className="w-4 h-4" /> Copy
                         </button>
                         <button
                           onClick={saveOrder}
-                          className="bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded flex items-center gap-2"
+                          className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg flex items-center gap-2 font-semibold transition-colors"
                         >
                           <CheckCircle2 className="w-5 h-5" /> Save Order
                         </button>
@@ -578,32 +543,50 @@ export default function OrdersPage() {
 
       {/* Recent orders */}
       <section>
-        <h2 className="font-semibold mb-3">Recent Orders</h2>
+        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+          <Calendar className="w-5 h-5 text-primary" />
+          Recent Orders
+        </h2>
         {recent.length === 0 ? (
-          <p className="text-sm text-gray-500">No orders yet.</p>
+          <div className="text-center py-12 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl">
+            <ShoppingBag className="w-12 h-12 mx-auto mb-3 opacity-50" />
+            <p>No orders yet.</p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {recent.map((o) => (
               <div
                 key={o.Id}
-                className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4"
+                className="bg-white dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-xl p-5 hover:shadow-md transition-shadow"
               >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="font-semibold">{o.Customer || "Walk-in"}</div>
-                  <span className="text-xs px-2 py-1 rounded-full border">
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <div className="font-semibold text-lg">{o.Customer || "Walk-in"}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      {new Date(o.OrderDate).toLocaleString()}
+                    </div>
+                  </div>
+                  <span className={`text-xs px-3 py-1 rounded-full font-medium ${
+                    o.PaymentStatus === 'Paid' 
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                      : o.PaymentStatus === 'Pending'
+                      ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
+                      : o.PaymentStatus === 'Partial'
+                      ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
+                      : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                  }`}>
                     {o.PaymentStatus}
                   </span>
                 </div>
-                <div className="text-xs text-gray-500 mb-2">
-                  {new Date(o.OrderDate).toLocaleString()}
-                </div>
-                <div className="text-sm flex justify-between">
-                  <span>Lines</span>
-                  <span className="font-medium">{o.LineCount}</span>
-                </div>
-                <div className="text-sm flex justify-between">
-                  <span>Total</span>
-                  <span className="font-bold">{o.Total.toFixed(2)}</span>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600 dark:text-gray-400">Items</span>
+                    <span className="font-medium">{o.LineCount}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">Total</span>
+                    <span className="font-bold text-primary">Rs {o.Total.toFixed(2)}</span>
+                  </div>
                 </div>
               </div>
             ))}

@@ -13,7 +13,7 @@ import {
   runPnLReport,
   runDeadStockReport,
 } from "./actions";
-import { BarChart2, Filter, Package, DollarSign, Trash2 } from "lucide-react";
+import { BarChart2, Filter, Package, TrendingUp, Receipt, Trash2, PieChart } from "lucide-react";
 
 type Option = { Id: string; Name: string };
 
@@ -49,21 +49,16 @@ export default function ReportPage() {
     to: "",
   });
 
-  const [activeTab, setActiveTab] = useState<
-    "inventory" | "sales" | "expenses" | "pnl" | "deadStock"
-  >("inventory");
+  const [activeTab, setActiveTab] = useState<"inventory" | "sales" | "expenses" | "pnl" | "deadStock">("inventory");
 
-  const [inventoryData, setInventoryData] = useState<InventoryRow[] | null>(
-    null
-  );
+  const [inventoryData, setInventoryData] = useState<InventoryRow[] | null>(null);
   const [salesData, setSalesData] = useState<any[]>([]);
   const [expensesData, setExpensesData] = useState<any[]>([]);
   const [pnlData, setPnlData] = useState<any | null>(null);
   const [deadStockData, setDeadStockData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const tabs: Array<"inventory" | "sales" | "expenses" | "pnl" | "deadStock"> =
-    ["inventory", "sales", "expenses", "pnl", "deadStock"];
+  const tabs: Array<"inventory" | "sales" | "expenses" | "pnl" | "deadStock"> = ["inventory", "sales", "expenses", "pnl", "deadStock"];
 
   // Load dropdowns initially
   useEffect(() => {
@@ -96,7 +91,6 @@ export default function ReportPage() {
         toast.error(e.message || "Failed to load products");
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters.category]);
 
   async function runReport() {
@@ -117,6 +111,7 @@ export default function ReportPage() {
       if (activeTab === "deadStock") {
         setDeadStockData(await runDeadStockReport(filters));
       }
+      toast.success("Report generated successfully");
     } catch (err: any) {
       toast.error(err.message || "Failed to run report");
     } finally {
@@ -133,154 +128,166 @@ export default function ReportPage() {
         <div className="bg-primary/20 p-3 rounded-lg">
           <BarChart2 className="w-6 h-6 text-primary" />
         </div>
-        <h1 className="text-xl font-bold">Reports</h1>
+        <h1 className="text-xl font-bold">Reports & Analytics</h1>
       </div>
 
       {/* Filters */}
-      <div className="bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl p-5 mb-2 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        {/* Category */}
-        <select
-          value={filters.category}
-          onChange={(e) =>
-            setFilters((f) => ({ ...f, category: e.target.value }))
-          }
-          className="rounded-lg border p-3 bg-gray-50 dark:bg-gray-800"
-        >
-          <option value="">All Categories</option>
-          {categories.map((c) => (
-            <option key={c.Id} value={c.Id}>
-              {c.Name}
-            </option>
-          ))}
-        </select>
+      <div className="bg-white dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-xl p-6 mb-6">
+        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          <Filter className="w-5 h-5 text-primary" />
+          Filters
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</label>
+            <select
+              value={filters.category}
+              onChange={(e) => setFilters((f) => ({ ...f, category: e.target.value }))}
+              className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            >
+              <option value="">All Categories</option>
+              {categories.map((c) => (
+                <option key={c.Id} value={c.Id}>{c.Name}</option>
+              ))}
+            </select>
+          </div>
 
-        {/* Product */}
-        <select
-          value={filters.product}
-          onChange={(e) =>
-            setFilters((f) => ({ ...f, product: e.target.value }))
-          }
-          className="rounded-lg border p-3 bg-gray-50 dark:bg-gray-800"
-        >
-          <option value="">All Products</option>
-          {products.map((p) => (
-            <option key={p.Id} value={p.Id}>
-              {p.Name}
-            </option>
-          ))}
-        </select>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Product</label>
+            <select
+              value={filters.product}
+              onChange={(e) => setFilters((f) => ({ ...f, product: e.target.value }))}
+              className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            >
+              <option value="">All Products</option>
+              {products.map((p) => (
+                <option key={p.Id} value={p.Id}>{p.Name}</option>
+              ))}
+            </select>
+          </div>
 
-        {/* Size */}
-        <select
-          value={filters.size}
-          onChange={(e) => setFilters((f) => ({ ...f, size: e.target.value }))}
-          className="rounded-lg border p-3 bg-gray-50 dark:bg-gray-800"
-        >
-          <option value="">All Sizes</option>
-          {sizes.map((s) => (
-            <option key={s.Id} value={s.Id}>
-              {s.Name}
-            </option>
-          ))}
-        </select>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Size</label>
+            <select
+              value={filters.size}
+              onChange={(e) => setFilters((f) => ({ ...f, size: e.target.value }))}
+              className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            >
+              <option value="">All Sizes</option>
+              {sizes.map((s) => (
+                <option key={s.Id} value={s.Id}>{s.Name}</option>
+              ))}
+            </select>
+          </div>
 
-        {/* Color */}
-        <select
-          value={filters.color}
-          onChange={(e) => setFilters((f) => ({ ...f, color: e.target.value }))}
-          className="rounded-lg border p-3 bg-gray-50 dark:bg-gray-800"
-        >
-          <option value="">All Colors</option>
-          {colors.map((c) => (
-            <option key={c.Id} value={c.Id}>
-              {c.Name}
-            </option>
-          ))}
-        </select>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Color</label>
+            <select
+              value={filters.color}
+              onChange={(e) => setFilters((f) => ({ ...f, color: e.target.value }))}
+              className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            >
+              <option value="">All Colors</option>
+              {colors.map((c) => (
+                <option key={c.Id} value={c.Id}>{c.Name}</option>
+              ))}
+            </select>
+          </div>
 
-        {/* From */}
-        <input
-          type="date"
-          value={filters.from}
-          onChange={(e) => setFilters((f) => ({ ...f, from: e.target.value }))}
-          className="rounded-lg border p-3 bg-gray-50 dark:bg-gray-800"
-        />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">From Date</label>
+            <input
+              type="date"
+              value={filters.from}
+              onChange={(e) => setFilters((f) => ({ ...f, from: e.target.value }))}
+              className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            />
+          </div>
 
-        {/* To */}
-        <input
-          type="date"
-          value={filters.to}
-          onChange={(e) => setFilters((f) => ({ ...f, to: e.target.value }))}
-          className="rounded-lg border p-3 bg-gray-50 dark:bg-gray-800"
-        />
-      </div>
-
-      {/* Run Button */}
-      <div className="mb-8 flex justify-end">
-        <button
-          onClick={runReport}
-          disabled={loading}
-          className="bg-primary hover:bg-primary/90 text-white font-semibold rounded-lg px-6 py-2 flex items-center gap-2 disabled:opacity-60"
-        >
-          <Filter className="w-4 h-4" />
-          {loading ? "Running..." : `Run ${activeTab} Report`}
-        </button>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">To Date</label>
+            <input
+              type="date"
+              value={filters.to}
+              onChange={(e) => setFilters((f) => ({ ...f, to: e.target.value }))}
+              className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            />
+          </div>
+        </div>
+        
+        <div className="mt-6 flex justify-end">
+          <button
+            onClick={runReport}
+            disabled={loading}
+            className="bg-primary hover:bg-primary/90 text-white font-semibold rounded-lg px-6 py-3 flex items-center gap-2 disabled:opacity-60 transition-colors"
+          >
+            <Filter className="w-4 h-4" />
+            {loading ? "Generating..." : `Generate ${activeTab === 'pnl' ? 'P&L' : activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Report`}
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-4 mb-6 border-b border-gray-300 dark:border-gray-700">
+      <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
         {tabs.map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`pb-2 px-2 font-medium capitalize ${
+            className={`px-6 py-3 font-medium rounded-lg whitespace-nowrap transition-all ${
               activeTab === tab
-                ? "border-b-2 border-primary text-primary"
-                : "text-gray-500 hover:text-gray-800 dark:hover:text-white"
+                ? "bg-primary text-white shadow-lg"
+                : "bg-white dark:bg-gray-800/50 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 border border-gray-200 dark:border-gray-700"
             }`}
           >
-            {tab === "pnl" ? "P & L" : tab}
+            {tab === "pnl" ? "P & L" : tab.charAt(0).toUpperCase() + tab.slice(1)}
           </button>
         ))}
       </div>
 
       {/* Report Data */}
-      <div className="bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl p-6">
+      <div className="bg-white dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
         {/* Inventory */}
         {activeTab === "inventory" && (
           <>
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Package className="w-5 h-5 text-primary" /> Inventory Report
-            </h2>
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <Package className="w-5 h-5 text-primary" /> Inventory Report
+              </h2>
+            </div>
             {!inventoryData ? (
-              <p className="text-gray-500 text-center py-12">
-                Run a report to see inventory data
-              </p>
+              <div className="text-center py-16 text-gray-500 dark:text-gray-400">
+                <Package className="w-16 h-16 mx-auto mb-4 opacity-30" />
+                <p className="text-lg">Click "Generate Report" to view inventory data</p>
+              </div>
             ) : inventoryData.length === 0 ? (
-              <p className="text-gray-500">No inventory data</p>
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                <p>No inventory data found for the selected filters</p>
+              </div>
             ) : (
-              <table className="w-full text-sm">
-                <thead className="bg-gray-100 dark:bg-gray-700/50">
-                  <tr>
-                    <th className="p-3 text-left">Category</th>
-                    <th className="p-3 text-left">Product</th>
-                    <th className="p-3 text-left">Size</th>
-                    <th className="p-3 text-left">Color</th>
-                    <th className="p-3 text-left">Qty</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {inventoryData.map((row, i) => (
-                    <tr key={i} className="border-t">
-                      <td className="p-3">{row.Category}</td>
-                      <td className="p-3">{row.Product}</td>
-                      <td className="p-3">{row.Size}</td>
-                      <td className="p-3">{row.Color}</td>
-                      <td className="p-3">{row.Qty}</td>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-100 dark:bg-gray-700/50">
+                    <tr>
+                      <th className="p-4 text-left font-semibold text-gray-700 dark:text-gray-300">Category</th>
+                      <th className="p-4 text-left font-semibold text-gray-700 dark:text-gray-300">Product</th>
+                      <th className="p-4 text-left font-semibold text-gray-700 dark:text-gray-300">Size</th>
+                      <th className="p-4 text-left font-semibold text-gray-700 dark:text-gray-300">Color</th>
+                      <th className="p-4 text-left font-semibold text-gray-700 dark:text-gray-300">Quantity</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {inventoryData.map((row, i) => (
+                      <tr key={i} className="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                        <td className="p-4">{row.Category}</td>
+                        <td className="p-4 font-medium">{row.Product}</td>
+                        <td className="p-4">{row.Size}</td>
+                        <td className="p-4">{row.Color}</td>
+                        <td className="p-4 font-semibold">{row.Qty}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </>
         )}
@@ -288,34 +295,41 @@ export default function ReportPage() {
         {/* Sales */}
         {activeTab === "sales" && (
           <>
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <DollarSign className="w-5 h-5 text-primary" /> Sales Report
-            </h2>
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-primary" /> Sales Report
+              </h2>
+            </div>
             {!salesData ? (
-              <p className="text-gray-500 text-center py-12">
-                Run a report to see sales data
-              </p>
+              <div className="text-center py-16 text-gray-500 dark:text-gray-400">
+                <TrendingUp className="w-16 h-16 mx-auto mb-4 opacity-30" />
+                <p className="text-lg">Click "Generate Report" to view sales data</p>
+              </div>
             ) : salesData.length === 0 ? (
-              <p className="text-gray-500">No sales data</p>
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                <p>No sales data found for the selected filters</p>
+              </div>
             ) : (
-              <table className="w-full text-sm">
-                <thead className="bg-gray-100 dark:bg-gray-700/50">
-                  <tr>
-                    <th className="p-3 text-left">Product</th>
-                    <th className="p-3 text-left">Qty Sold</th>
-                    <th className="p-3 text-left">Revenue</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {salesData.map((row, i) => (
-                    <tr key={i} className="border-t">
-                      <td className="p-3">{row.Product}</td>
-                      <td className="p-3">{row.Qty}</td>
-                      <td className="p-3">Rs {row.Revenue}</td>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-100 dark:bg-gray-700/50">
+                    <tr>
+                      <th className="p-4 text-left font-semibold text-gray-700 dark:text-gray-300">Product</th>
+                      <th className="p-4 text-left font-semibold text-gray-700 dark:text-gray-300">Qty Sold</th>
+                      <th className="p-4 text-left font-semibold text-gray-700 dark:text-gray-300">Revenue</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {salesData.map((row, i) => (
+                      <tr key={i} className="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                        <td className="p-4 font-medium">{row.Product}</td>
+                        <td className="p-4">{row.Qty}</td>
+                        <td className="p-4 font-semibold text-green-600 dark:text-green-400">Rs {row.Revenue}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </>
         )}
@@ -323,34 +337,43 @@ export default function ReportPage() {
         {/* Expenses */}
         {activeTab === "expenses" && (
           <>
-            <h2 className="text-lg font-semibold mb-4">Expenses Report</h2>
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <Receipt className="w-5 h-5 text-primary" /> Expenses Report
+              </h2>
+            </div>
             {!expensesData ? (
-              <p className="text-gray-500 text-center py-12">
-                Run a report to see expenses data
-              </p>
+              <div className="text-center py-16 text-gray-500 dark:text-gray-400">
+                <Receipt className="w-16 h-16 mx-auto mb-4 opacity-30" />
+                <p className="text-lg">Click "Generate Report" to view expenses data</p>
+              </div>
             ) : expensesData.length === 0 ? (
-              <p className="text-gray-500">No expenses data</p>
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                <p>No expenses data found for the selected filters</p>
+              </div>
             ) : (
-              <table className="w-full text-sm">
-                <thead className="bg-gray-100 dark:bg-gray-700/50">
-                  <tr>
-                    <th className="p-3 text-left">Description</th>
-                    <th className="p-3 text-left">Amount</th>
-                    <th className="p-3 text-left">Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {expensesData.map((row, i) => (
-                    <tr key={i} className="border-t">
-                      <td className="p-3">{row.Description}</td>
-                      <td className="p-3">Rs {row.Amount}</td>
-                      <td className="p-3">
-                        {new Date(row.UsageDate).toLocaleDateString()}
-                      </td>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-100 dark:bg-gray-700/50">
+                    <tr>
+                      <th className="p-4 text-left font-semibold text-gray-700 dark:text-gray-300">Description</th>
+                      <th className="p-4 text-left font-semibold text-gray-700 dark:text-gray-300">Amount</th>
+                      <th className="p-4 text-left font-semibold text-gray-700 dark:text-gray-300">Date</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {expensesData.map((row, i) => (
+                      <tr key={i} className="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                        <td className="p-4">{row.Description}</td>
+                        <td className="p-4 font-semibold text-red-600 dark:text-red-400">Rs {row.Amount}</td>
+                        <td className="p-4 text-gray-600 dark:text-gray-400">
+                          {new Date(row.UsageDate).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </>
         )}
@@ -358,24 +381,40 @@ export default function ReportPage() {
         {/* P&L */}
         {activeTab === "pnl" && (
           <>
-            <h2 className="text-lg font-semibold mb-4">Profit & Loss</h2>
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <PieChart className="w-5 h-5 text-primary" /> Profit & Loss Statement
+              </h2>
+            </div>
             {!pnlData ? (
-              <p className="text-gray-500 text-center py-12">
-                Run a report to see P&L
-              </p>
+              <div className="text-center py-16 text-gray-500 dark:text-gray-400">
+                <PieChart className="w-16 h-16 mx-auto mb-4 opacity-30" />
+                <p className="text-lg">Click "Generate Report" to view P&L statement</p>
+              </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 bg-green-50 dark:bg-green-900/30 rounded-lg">
-                  <p className="text-sm">Revenue</p>
-                  <p className="text-lg font-bold">Rs {pnlData.Revenue}</p>
-                </div>
-                <div className="p-4 bg-red-50 dark:bg-red-900/30 rounded-lg">
-                  <p className="text-sm">Cost of Goods Sold</p>
-                  <p className="text-lg font-bold">Rs {pnlData.COGS}</p>
-                </div>
-                <div className="p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
-                  <p className="text-sm">Gross Profit</p>
-                  <p className="text-lg font-bold">Rs {pnlData.GrossProfit}</p>
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400" />
+                      <p className="text-sm font-medium text-green-800 dark:text-green-300">Revenue</p>
+                    </div>
+                    <p className="text-3xl font-bold text-green-600 dark:text-green-400">Rs {pnlData.Revenue}</p>
+                  </div>
+                  <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Receipt className="w-5 h-5 text-red-600 dark:text-red-400" />
+                      <p className="text-sm font-medium text-red-800 dark:text-red-300">Cost of Goods Sold</p>
+                    </div>
+                    <p className="text-3xl font-bold text-red-600 dark:text-red-400">Rs {pnlData.COGS}</p>
+                  </div>
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <PieChart className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                      <p className="text-sm font-medium text-blue-800 dark:text-blue-300">Gross Profit</p>
+                    </div>
+                    <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">Rs {pnlData.GrossProfit}</p>
+                  </div>
                 </div>
               </div>
             )}
@@ -385,32 +424,39 @@ export default function ReportPage() {
         {/* Dead Stock */}
         {activeTab === "deadStock" && (
           <>
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Trash2 className="w-5 h-5 text-primary" /> Dead Stock
-            </h2>
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <Trash2 className="w-5 h-5 text-primary" /> Dead Stock Report
+              </h2>
+            </div>
             {!deadStockData ? (
-              <p className="text-gray-500 text-center py-12">
-                Run a report to see dead stock
-              </p>
+              <div className="text-center py-16 text-gray-500 dark:text-gray-400">
+                <Trash2 className="w-16 h-16 mx-auto mb-4 opacity-30" />
+                <p className="text-lg">Click "Generate Report" to view dead stock items</p>
+              </div>
             ) : deadStockData.length === 0 ? (
-              <p className="text-gray-500">No dead stock items</p>
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                <p>No dead stock items found</p>
+              </div>
             ) : (
-              <table className="w-full text-sm">
-                <thead className="bg-gray-100 dark:bg-gray-700/50">
-                  <tr>
-                    <th className="p-3 text-left">Product</th>
-                    <th className="p-3 text-left">Qty</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {deadStockData.map((row, i) => (
-                    <tr key={i} className="border-t">
-                      <td className="p-3">{row.Product}</td>
-                      <td className="p-3">{row.Qty}</td>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-100 dark:bg-gray-700/50">
+                    <tr>
+                      <th className="p-4 text-left font-semibold text-gray-700 dark:text-gray-300">Product</th>
+                      <th className="p-4 text-left font-semibold text-gray-700 dark:text-gray-300">Quantity</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {deadStockData.map((row, i) => (
+                      <tr key={i} className="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                        <td className="p-4 font-medium">{row.Product}</td>
+                        <td className="p-4 font-semibold text-orange-600 dark:text-orange-400">{row.Qty}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </>
         )}

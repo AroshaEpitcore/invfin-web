@@ -13,6 +13,7 @@ import {
   Package,
   Receipt,
   Wallet,
+  MessageCircle,
 } from "lucide-react";
 
 const navItems = [
@@ -24,8 +25,9 @@ const navItems = [
   { href: "/finance", label: "Finance", icon: DollarSign },
   { href: "/expenses", label: "Expenses", icon: Wallet },
   { href: "/reports", label: "Reports", icon: FileText },
-  { href: "/settings", label: "Settings", icon: Settings },
   { href: "/users", label: "Users", icon: Users },
+  { href: "/whatsapp", label: "Whatsapp", icon: MessageCircle },
+  { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 export default function Sidebar() {
