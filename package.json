@@ -8,13 +8,15 @@
     "start": "next start"
   },
   "dependencies": {
+    "@radix-ui/react-tooltip": "^1.2.8",
     "bcryptjs": "^3.0.2",
     "lucide-react": "^0.544.0",
     "mssql": "^11.0.1",
     "next": "^15.5.4",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "react-hot-toast": "^2.6.0"
+    "react-hot-toast": "^2.6.0",
+    "react-tooltip": "^5.29.1"
   },
   "devDependencies": {
     "@types/bcryptjs": "^3.0.0",

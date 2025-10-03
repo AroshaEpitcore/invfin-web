@@ -494,7 +494,7 @@ export default function OrdersPage() {
                     <div className="flex flex-col lg:flex-row gap-6 items-end justify-between">
                       <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
                         <div className="text-gray-600 dark:text-gray-300">Subtotal:</div>
-                        <div className="text-right font-semibold">Rs {subtotal.toFixed(2)}</div>
+                        <div className="text-center font-semibold">Rs {subtotal.toFixed(2)}</div>
                         
                         <div className="text-gray-600 dark:text-gray-300">Discount:</div>
                         <input
@@ -502,7 +502,7 @@ export default function OrdersPage() {
                           step="0.01"
                           value={discount}
                           onChange={(e) => setDiscount(parseFloat(e.target.value || "0"))}
-                          className="w-32 text-right bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1.5"
+                          className="w-32 text-center bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1.5"
                         />
                         
                         <div className="text-gray-600 dark:text-gray-300">Delivery Fee:</div>
@@ -511,11 +511,11 @@ export default function OrdersPage() {
                           step="0.01"
                           value={deliveryFee}
                           onChange={(e) => setDeliveryFee(parseFloat(e.target.value || "0"))}
-                          className="w-32 text-right bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1.5"
+                          className="w-32 text-center bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1.5"
                         />
                         
                         <div className="text-lg font-bold text-gray-900 dark:text-white">Total:</div>
-                        <div className="text-right text-xl font-bold text-primary">Rs {total.toFixed(2)}</div>
+                        <div className="text-center text-xl font-bold text-primary">Rs {total.toFixed(2)}</div>
                       </div>
 
                       <div className="flex gap-3">
