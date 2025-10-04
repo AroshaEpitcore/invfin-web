@@ -39,7 +39,7 @@ export default function RegisterPage() {
         <div className="flex flex-col items-center mb-8">
           <div className="flex items-center space-x-2 text-primary text-4xl font-bold">
             <UserPlus className="w-8 h-8 text-primary" />
-            <span>InvFin</span>
+            <span>EssenceFit</span>
           </div>
           <p className="text-gray-400 text-sm mt-2">Create your account</p>
         </div>

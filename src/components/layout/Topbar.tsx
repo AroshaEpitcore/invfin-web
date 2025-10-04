@@ -18,6 +18,7 @@ export default function Topbar({
 }) {
   const [darkMode, setDarkMode] = useState(true);
   const [user, setUser] = useState<User | null>(null);
+  const [time, setTime] = useState<string>(""); // ⏰ clock state
   const router = useRouter();
 
   // Load user from localStorage on mount
@@ -28,6 +29,20 @@ export default function Topbar({
     }
   }, []);
 
+  // Update clock every second
+  useEffect(() => {
+    const updateClock = () => {
+      const now = new Date();
+      setTime(
+        now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })
+      );
+    };
+    updateClock();
+    const interval = setInterval(updateClock, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Dark mode handler
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add("dark");
@@ -59,20 +74,25 @@ export default function Topbar({
       {/* Middle zone: Moving Announcement */}
       <div className="flex-1 mx-4 overflow-hidden">
         <div className="whitespace-nowrap animate-marquee text-sm text-gray-700 dark:text-gray-300">
-          ⚡ Welcome to EssenceFit! Manage all your inventory and finances with ease.   Check out the latest updates and reports.
+          ⚡ Welcome to EssenceFit! Manage all your inventory and finances with ease. Check out the latest updates and reports.
         </div>
       </div>
 
-      {/* Right side: user info + dark mode + logout */}
+      {/* Right side: user info + clock + dark mode + logout */}
       <div className="flex items-center gap-4">
         {user && (
-          <div className="text-right">
-            <p className="text-sm font-medium text-gray-800 dark:text-gray-100">
-              {user.Username}
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              {user.Role}
-            </p>
+          <div className="flex items-center gap-4">
+             {/* Clock */}
+            <span className="text-sm font-mono text-gray-600 dark:text-gray-300">
+              {time}
+            </span>
+            {/* Username + role (stacked) */}
+            <div className="text-right">
+              <p className="text-sm font-medium text-gray-800 dark:text-gray-100">
+                {user.Username}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{user.Role}</p>
+            </div>
           </div>
         )}
 
