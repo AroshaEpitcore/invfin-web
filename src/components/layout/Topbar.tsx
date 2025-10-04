@@ -52,7 +52,7 @@ export default function Topbar({
           <Menu className="h-5 w-5" />
         </button>
         <h1 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-          Dashboard
+          EssenceFit
         </h1>
       </div>
 

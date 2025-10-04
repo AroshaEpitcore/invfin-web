@@ -14,10 +14,10 @@ import {
   Receipt,
   Wallet,
   MessageCircle,
-  ChevronRight,
+  LeafyGreen,
+  Truck,
 } from "lucide-react";
-import { Tooltip } from "react-tooltip"; // react-tooltip v4+
-
+import { Tooltip } from "react-tooltip";
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/inventory", label: "Inventory", icon: Boxes },
@@ -26,6 +26,7 @@ const navItems = [
   { href: "/orders", label: "Orders", icon: ShoppingCart },
   { href: "/finance", label: "Finance", icon: DollarSign },
   { href: "/expenses", label: "Expenses", icon: Wallet },
+  { href: "/suppliers", label: "Suppliers", icon: Truck },
   { href: "/reports", label: "Reports", icon: FileText },
   { href: "/users", label: "Users", icon: Users },
   { href: "/whatsapp", label: "Whatsapp", icon: MessageCircle },
@@ -41,8 +42,8 @@ export default function Sidebar({ collapsed }: { collapsed: boolean }) {
         collapsed ? "w-16" : "w-64"
       } bg-[#0b1220] flex flex-col transition-all duration-300 ease-in-out`}
     >
-      <div className="p-4 text-gray-100 font-bold text-xl flex items-center justify-center">
-        {collapsed ? <ChevronRight className="h-6 w-6" /> : "InvFin"}
+      <div className="px-4 py-5 text-gray-100 font-bold text-xl flex items-center justify-center">
+        {collapsed ? <LeafyGreen className="h-6 w-6 text-green-400" /> : "EssenceFit"}
       </div>
 
       <nav className="flex-1">
