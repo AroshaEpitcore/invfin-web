@@ -27,10 +27,11 @@ const navItems = [
   { href: "/orders", label: "Orders", icon: ShoppingCart },
   { href: "/finance", label: "Finance", icon: DollarSign },
   { href: "/expenses", label: "Expenses", icon: Wallet },
+  { href: "/returns", label: "Returns", icon: RotateCcw },
+  { href: "/customers", label: "Customers", icon: Users },
   { href: "/suppliers", label: "Suppliers", icon: Truck },
   { href: "/reports", label: "Reports", icon: FileText },
   { href: "/users", label: "Users", icon: Users },
-  { href: "/returns", label: "Returns", icon: RotateCcw },
   { href: "/whatsapp", label: "Whatsapp", icon: MessageCircle },
   { href: "/settings", label: "Settings", icon: Settings },
 ];

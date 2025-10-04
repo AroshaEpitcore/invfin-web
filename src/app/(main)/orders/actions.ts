@@ -57,7 +57,7 @@ export async function getColorsByProductAndSize(productId: string, sizeId: strin
   return res.recordset as { Id: string; Name: string }[];
 }
 
-/* Variant picker row (includes available qty and default selling price) */
+/* ---------- Variant Info ---------- */
 export async function getVariant(productId: string, sizeId: string, colorId: string) {
   const pool = await getDb();
   const res = await pool
@@ -67,8 +67,8 @@ export async function getVariant(productId: string, sizeId: string, colorId: str
     .input("cid", UniqueIdentifier, colorId)
     .query(`
       SELECT TOP 1
-        v.Id          AS VariantId,
-        v.Qty         AS InStock,
+        v.Id AS VariantId,
+        v.Qty AS InStock,
         ISNULL(v.SellingPrice, p.SellingPrice) AS SellingPrice
       FROM ProductVariants v
       JOIN Products p ON p.Id = v.ProductId
@@ -77,7 +77,7 @@ export async function getVariant(productId: string, sizeId: string, colorId: str
   return res.recordset[0];
 }
 
-/* Recently saved orders (cards) */
+/* ---------- Recent Orders ---------- */
 export async function getRecentOrders(limit: number = 10) {
   const pool = await getDb();
   const res = await pool
@@ -101,7 +101,78 @@ export async function getRecentOrders(limit: number = 10) {
   }[];
 }
 
-/* ---------- Create Order (transaction via proc) ---------- */
+/* ---------- Customer Upsert ---------- */
+async function upsertCustomer(name: string | null, phone: string | null, address: string | null) {
+  if (!name) return null; // skip if no name
+
+  const pool = await getDb();
+
+  // check existing by phone
+  const existing = await pool
+    .request()
+    .input("Phone", NVarChar(50), phone ?? null)
+    .query(`SELECT TOP 1 Id FROM Customers WHERE Phone=@Phone`);
+
+  if (existing.recordset.length > 0) {
+    const id = existing.recordset[0].Id;
+    await pool
+      .request()
+      .input("Id", UniqueIdentifier, id)
+      .input("Name", NVarChar(200), name)
+      .input("Address", NVarChar(500), address ?? null)
+      .query(`UPDATE Customers SET Name=@Name, Address=@Address WHERE Id=@Id`);
+    return id;
+  }
+
+  const newId = crypto.randomUUID();
+  await pool
+    .request()
+    .input("Id", UniqueIdentifier, newId)
+    .input("Name", NVarChar(200), name)
+    .input("Phone", NVarChar(50), phone ?? null)
+    .input("Address", NVarChar(500), address ?? null)
+    .input("CreatedAt", sql.DateTime2, new Date())
+    .query(`
+      INSERT INTO Customers (Id, Name, Phone, Address, CreatedAt)
+      VALUES (@Id, @Name, @Phone, @Address, @CreatedAt)
+  `);
+
+  return newId;
+}
+
+/* ---------- Customers (GET + DELETE) ---------- */
+
+export async function getCustomers() {
+  const pool = await getDb();
+  const res = await pool.request().query(`
+    SELECT 
+      Id, 
+      Name, 
+      Phone, 
+      Address, 
+      CreatedAt
+    FROM Customers
+    ORDER BY CreatedAt DESC
+  `);
+  return res.recordset as {
+    Id: string;
+    Name: string;
+    Phone: string | null;
+    Address: string | null;
+    CreatedAt: Date;
+  }[];
+}
+
+export async function deleteCustomer(id: string) {
+  const pool = await getDb();
+  await pool
+    .request()
+    .input("Id", UniqueIdentifier, id)
+    .query("DELETE FROM Customers WHERE Id=@Id");
+  return true;
+}
+
+/* ---------- Order Creation ---------- */
 
 export type OrderItemInput = {
   VariantId: string;
@@ -114,7 +185,7 @@ export type OrderPayload = {
   Phone?: string | null;
   Address?: string | null;
   PaymentStatus: "Pending" | "Paid" | "Partial" | "Canceled";
-  OrderDate: string; // yyyy-mm-dd
+  OrderDate: string;
   Subtotal: number;
   Discount: number;
   DeliveryFee: number;
@@ -128,6 +199,13 @@ export async function createOrder(payload: OrderPayload) {
 
   const pool = await getDb();
 
+  const customerId = await upsertCustomer(
+    payload.Customer ?? null,
+    payload.Phone ?? null,
+    payload.Address ?? null
+  );
+
+  // Prepare TVP
   const tvp = new sql.Table("dbo.udt_OrderItems");
   tvp.columns.add("VariantId", sql.UniqueIdentifier, { nullable: false });
   tvp.columns.add("Qty", sql.Int, { nullable: false });
@@ -138,6 +216,7 @@ export async function createOrder(payload: OrderPayload) {
   }
 
   const req = pool.request();
+  req.input("CustomerId", UniqueIdentifier, customerId);
   req.input("Customer", NVarChar(200), payload.Customer ?? null);
   req.input("Phone", NVarChar(50), payload.Phone ?? null);
   req.input("Address", NVarChar(500), payload.Address ?? null);
@@ -150,9 +229,9 @@ export async function createOrder(payload: OrderPayload) {
   req.input("Note", NVarChar(1000), payload.Note ?? null);
   req.input("Items", tvp);
 
-  // call stored procedure that ONLY inserts order + items
   const out = await req.execute("dbo.sp_create_order");
   const OrderId = out.recordset?.[0]?.OrderId as string | undefined;
+
   if (!OrderId) throw new Error("Order creation failed.");
   return { OrderId };
 }
