@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
+import { generateInvoice, sendInvoiceWhatsApp } from "./invoiceActions";
 import {
   getCategories,
   getProductsByCategory,
@@ -13,7 +14,18 @@ import {
   type OrderItemInput,
   type OrderPayload,
 } from "./actions";
-import { ShoppingBag, Plus, Trash2, Clipboard, CheckCircle2, User, Phone, MapPin, Calendar, FileText } from "lucide-react";
+import {
+  ShoppingBag,
+  Plus,
+  Trash2,
+  Clipboard,
+  CheckCircle2,
+  User,
+  Phone,
+  MapPin,
+  Calendar,
+  FileText,
+} from "lucide-react";
 
 type Opt = { Id: string; Name: string };
 
@@ -47,8 +59,12 @@ export default function OrdersPage() {
   const [customer, setCustomer] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
-  const [status, setStatus] = useState<"Pending" | "Paid" | "Partial" | "Canceled">("Pending");
-  const [orderDate, setOrderDate] = useState<string>(() => new Date().toISOString().slice(0, 10));
+  const [status, setStatus] = useState<
+    "Pending" | "Paid" | "Partial" | "Canceled"
+  >("Pending");
+  const [orderDate, setOrderDate] = useState<string>(() =>
+    new Date().toISOString().slice(0, 10)
+  );
   const [discount, setDiscount] = useState<number>(0);
   const [deliveryFee, setDeliveryFee] = useState<number>(0);
   const [note, setNote] = useState("");
@@ -172,8 +188,14 @@ export default function OrdersPage() {
     setLines((prev) => prev.map((l) => (l.key === key ? { ...l, price } : l)));
   }
 
-  const subtotal = useMemo(() => lines.reduce((s, l) => s + l.qty * l.price, 0), [lines]);
-  const total = useMemo(() => Math.max(0, subtotal - (discount || 0) + (deliveryFee || 0)), [subtotal, discount, deliveryFee]);
+  const subtotal = useMemo(
+    () => lines.reduce((s, l) => s + l.qty * l.price, 0),
+    [lines]
+  );
+  const total = useMemo(
+    () => Math.max(0, subtotal - (discount || 0) + (deliveryFee || 0)),
+    [subtotal, discount, deliveryFee]
+  );
 
   async function saveOrder() {
     if (!lines.length) {
@@ -240,7 +262,10 @@ export default function OrdersPage() {
       `Delivery: Rs ${Number(deliveryFee || 0).toFixed(2)}`,
       `Total: Rs ${total.toFixed(2)}`,
       `Items:`,
-      ...lines.map((l) => ` - ${l.variant?.VariantId}  x${l.qty}  @Rs ${l.price.toFixed(2)}`),
+      ...lines.map(
+        (l) =>
+          ` - ${l.variant?.VariantId}  x${l.qty}  @Rs ${l.price.toFixed(2)}`
+      ),
       note ? `Note: ${note}` : "",
     ].join("\n");
     navigator.clipboard.writeText(s).then(
@@ -269,7 +294,9 @@ export default function OrdersPage() {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Customer Name</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Customer Name
+            </label>
             <input
               placeholder="Enter customer name"
               value={customer}
@@ -278,7 +305,9 @@ export default function OrdersPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Phone</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Phone
+            </label>
             <input
               placeholder="Enter phone number"
               value={phone}
@@ -287,7 +316,9 @@ export default function OrdersPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Address</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Address
+            </label>
             <input
               placeholder="Enter address"
               value={address}
@@ -296,7 +327,9 @@ export default function OrdersPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Payment Status</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Payment Status
+            </label>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value as any)}
@@ -309,7 +342,9 @@ export default function OrdersPage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Order Date</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Order Date
+            </label>
             <input
               type="date"
               value={orderDate}
@@ -318,7 +353,9 @@ export default function OrdersPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Note (Optional)</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Note (Optional)
+            </label>
             <input
               placeholder="Add a note"
               value={note}
@@ -337,7 +374,9 @@ export default function OrdersPage() {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Category
+            </label>
             <select
               value={selCat}
               onChange={(e) => onPickCategory(e.target.value)}
@@ -345,12 +384,16 @@ export default function OrdersPage() {
             >
               <option value="">Select</option>
               {categories.map((c) => (
-                <option key={c.Id} value={c.Id}>{c.Name}</option>
+                <option key={c.Id} value={c.Id}>
+                  {c.Name}
+                </option>
               ))}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Product</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Product
+            </label>
             <select
               value={selProd}
               onChange={(e) => onPickProduct(e.target.value)}
@@ -359,12 +402,16 @@ export default function OrdersPage() {
             >
               <option value="">Select</option>
               {products.map((p) => (
-                <option key={p.Id} value={p.Id}>{p.Name}</option>
+                <option key={p.Id} value={p.Id}>
+                  {p.Name}
+                </option>
               ))}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Size</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Size
+            </label>
             <select
               value={selSize}
               onChange={(e) => onPickSize(e.target.value)}
@@ -373,12 +420,16 @@ export default function OrdersPage() {
             >
               <option value="">Select</option>
               {sizes.map((s) => (
-                <option key={s.Id} value={s.Id}>{s.Name}</option>
+                <option key={s.Id} value={s.Id}>
+                  {s.Name}
+                </option>
               ))}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Color</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Color
+            </label>
             <select
               value={selColor}
               onChange={(e) => onPickColor(e.target.value)}
@@ -387,23 +438,31 @@ export default function OrdersPage() {
             >
               <option value="">Select</option>
               {colors.map((c) => (
-                <option key={c.Id} value={c.Id}>{c.Name}</option>
+                <option key={c.Id} value={c.Id}>
+                  {c.Name}
+                </option>
               ))}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Quantity</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Quantity
+            </label>
             <input
               type="number"
               min={1}
               value={lineQty}
-              onChange={(e) => setLineQty(Math.max(1, parseInt(e.target.value || "1")))}
+              onChange={(e) =>
+                setLineQty(Math.max(1, parseInt(e.target.value || "1")))
+              }
               className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
               placeholder="Qty"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Price (Rs)</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Price (Rs)
+            </label>
             <input
               type="number"
               step="0.01"
@@ -442,28 +501,54 @@ export default function OrdersPage() {
             <table className="w-full">
               <thead className="bg-gray-100 dark:bg-gray-700/50">
                 <tr>
-                  <th className="p-4 text-left font-semibold text-gray-700 dark:text-gray-300">Variant</th>
-                  <th className="p-4 text-center font-semibold text-gray-700 dark:text-gray-300">In Stock</th>
-                  <th className="p-4 text-center font-semibold text-gray-700 dark:text-gray-300">Price (Rs)</th>
-                  <th className="p-4 text-center font-semibold text-gray-700 dark:text-gray-300">Qty</th>
-                  <th className="p-4 text-center font-semibold text-gray-700 dark:text-gray-300">Total (Rs)</th>
-                  <th className="p-4 text-center font-semibold text-gray-700 dark:text-gray-300">Actions</th>
+                  <th className="p-4 text-left font-semibold text-gray-700 dark:text-gray-300">
+                    Variant
+                  </th>
+                  <th className="p-4 text-center font-semibold text-gray-700 dark:text-gray-300">
+                    In Stock
+                  </th>
+                  <th className="p-4 text-center font-semibold text-gray-700 dark:text-gray-300">
+                    Price (Rs)
+                  </th>
+                  <th className="p-4 text-center font-semibold text-gray-700 dark:text-gray-300">
+                    Qty
+                  </th>
+                  <th className="p-4 text-center font-semibold text-gray-700 dark:text-gray-300">
+                    Total (Rs)
+                  </th>
+                  <th className="p-4 text-center font-semibold text-gray-700 dark:text-gray-300">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {lines.map((l) => (
-                  <tr key={l.key} className="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                  <tr
+                    key={l.key}
+                    className="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors"
+                  >
                     <td className="p-4">
-                      <div className="text-xs text-gray-500 dark:text-gray-400">Variant ID</div>
-                      <div className="font-mono text-sm">{l.variant?.VariantId}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        Variant ID
+                      </div>
+                      <div className="font-mono text-sm">
+                        {l.variant?.VariantId}
+                      </div>
                     </td>
-                    <td className="p-4 text-center">{l.variant?.InStock ?? 0}</td>
+                    <td className="p-4 text-center">
+                      {l.variant?.InStock ?? 0}
+                    </td>
                     <td className="p-4 text-center">
                       <input
                         type="number"
                         step="0.01"
                         value={l.price}
-                        onChange={(e) => updateLinePrice(l.key, parseFloat(e.target.value || "0"))}
+                        onChange={(e) =>
+                          updateLinePrice(
+                            l.key,
+                            parseFloat(e.target.value || "0")
+                          )
+                        }
                         className="w-24 text-center bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-2 py-1"
                       />
                     </td>
@@ -472,11 +557,18 @@ export default function OrdersPage() {
                         type="number"
                         min={1}
                         value={l.qty}
-                        onChange={(e) => updateLineQty(l.key, Math.max(1, parseInt(e.target.value || "1")))}
+                        onChange={(e) =>
+                          updateLineQty(
+                            l.key,
+                            Math.max(1, parseInt(e.target.value || "1"))
+                          )
+                        }
                         className="w-20 text-center bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-2 py-1"
                       />
                     </td>
-                    <td className="p-4 text-center font-semibold">{(l.qty * l.price).toFixed(2)}</td>
+                    <td className="p-4 text-center font-semibold">
+                      {(l.qty * l.price).toFixed(2)}
+                    </td>
                     <td className="p-4 text-center">
                       <button
                         onClick={() => removeLine(l.key)}
@@ -493,29 +585,45 @@ export default function OrdersPage() {
                   <td colSpan={6} className="p-6">
                     <div className="flex flex-col lg:flex-row gap-6 items-end justify-between">
                       <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
-                        <div className="text-gray-600 dark:text-gray-300">Subtotal:</div>
-                        <div className="text-center font-semibold">Rs {subtotal.toFixed(2)}</div>
-                        
-                        <div className="text-gray-600 dark:text-gray-300">Discount:</div>
+                        <div className="text-gray-600 dark:text-gray-300">
+                          Subtotal:
+                        </div>
+                        <div className="text-center font-semibold">
+                          Rs {subtotal.toFixed(2)}
+                        </div>
+
+                        <div className="text-gray-600 dark:text-gray-300">
+                          Discount:
+                        </div>
                         <input
                           type="number"
                           step="0.01"
                           value={discount}
-                          onChange={(e) => setDiscount(parseFloat(e.target.value || "0"))}
+                          onChange={(e) =>
+                            setDiscount(parseFloat(e.target.value || "0"))
+                          }
                           className="w-32 text-center bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1.5"
                         />
-                        
-                        <div className="text-gray-600 dark:text-gray-300">Delivery Fee:</div>
+
+                        <div className="text-gray-600 dark:text-gray-300">
+                          Delivery Fee:
+                        </div>
                         <input
                           type="number"
                           step="0.01"
                           value={deliveryFee}
-                          onChange={(e) => setDeliveryFee(parseFloat(e.target.value || "0"))}
+                          onChange={(e) =>
+                            setDeliveryFee(parseFloat(e.target.value || "0"))
+                          }
                           className="w-32 text-center bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1.5"
                         />
-                        
-                        <div className="text-lg font-bold text-gray-900 dark:text-white">Total:</div>
-                        <div className="text-center text-xl font-bold text-primary">Rs {total.toFixed(2)}</div>
+
+                        <div className="text-lg font-bold text-gray-900 dark:text-white">
+                          Total:
+                        </div>
+                        <div className="text-center text-xl font-bold text-primary">
+                          Rs {total.toFixed(2)}
+                        </div>
                       </div>
 
                       <div className="flex gap-3">
@@ -561,32 +669,75 @@ export default function OrdersPage() {
               >
                 <div className="flex items-start justify-between mb-3">
                   <div>
-                    <div className="font-semibold text-lg">{o.Customer || "Walk-in"}</div>
+                    <div className="font-semibold text-lg">
+                      {o.Customer || "Walk-in"}
+                    </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       {new Date(o.OrderDate).toLocaleString()}
                     </div>
                   </div>
-                  <span className={`text-xs px-3 py-1 rounded-full font-medium ${
-                    o.PaymentStatus === 'Paid' 
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                      : o.PaymentStatus === 'Pending'
-                      ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
-                      : o.PaymentStatus === 'Partial'
-                      ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
-                      : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-                  }`}>
+                  <span
+                    className={`text-xs px-3 py-1 rounded-full font-medium ${
+                      o.PaymentStatus === "Paid"
+                        ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                        : o.PaymentStatus === "Pending"
+                        ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                        : o.PaymentStatus === "Partial"
+                        ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+                        : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+                    }`}
+                  >
                     {o.PaymentStatus}
                   </span>
                 </div>
+
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600 dark:text-gray-400">Items</span>
+                    <span className="text-gray-600 dark:text-gray-400">
+                      Items
+                    </span>
                     <span className="font-medium">{o.LineCount}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Total</span>
-                    <span className="font-bold text-primary">Rs {o.Total.toFixed(2)}</span>
+                    <span className="text-gray-600 dark:text-gray-400">
+                      Total
+                    </span>
+                    <span className="font-bold text-primary">
+                      Rs {o.Total.toFixed(2)}
+                    </span>
                   </div>
+                </div>
+
+                <div className="flex justify-end gap-2 mt-4">
+                  <button
+                    onClick={async () => {
+                      try {
+                        const res = await generateInvoice(o.Id);
+                        toast.success("Invoice generated");
+                        window.open(res, "_blank");
+                      } catch (e: any) {
+                        toast.error(e.message);
+                      }
+                    }}
+                    className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white px-3 py-2 rounded-lg text-sm font-medium"
+                  >
+                    <FileText className="w-4 h-4 inline-block mr-1" />
+                    Invoice
+                  </button>
+
+                  <button
+                    onClick={async () => {
+                      try {
+                        await sendInvoiceWhatsApp(o.Id, o.Phone);
+                        toast.success("Sent via WhatsApp");
+                      } catch (e: any) {
+                        toast.error(e.message);
+                      }
+                    }}
+                    className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg text-sm font-medium"
+                  >
+                    Send WhatsApp
+                  </button>
                 </div>
               </div>
             ))}
