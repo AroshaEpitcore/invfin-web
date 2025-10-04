@@ -16,6 +16,7 @@ import {
   MessageCircle,
   LeafyGreen,
   Truck,
+  RotateCcw,
 } from "lucide-react";
 import { Tooltip } from "react-tooltip";
 const navItems = [
@@ -29,6 +30,7 @@ const navItems = [
   { href: "/suppliers", label: "Suppliers", icon: Truck },
   { href: "/reports", label: "Reports", icon: FileText },
   { href: "/users", label: "Users", icon: Users },
+  { href: "/returns", label: "Returns", icon: RotateCcw },
   { href: "/whatsapp", label: "Whatsapp", icon: MessageCircle },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
