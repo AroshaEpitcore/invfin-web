@@ -96,7 +96,15 @@ export async function deleteProduct(id: string) {
 }
 
 // ---------- QUICK STOCK ----------
-export async function quickStock(productId: string, sizeId: string, colorId: string, qty: number, price: number) {
+// ---------- QUICK STOCK ----------
+export async function quickStock(
+  productId: string,
+  sizeId: string,
+  colorId: string,
+  qty: number,
+  price: number,
+  action: "add" | "remove"
+) {
   const pool = await getDb();
 
   // Find or create variant
@@ -105,12 +113,15 @@ export async function quickStock(productId: string, sizeId: string, colorId: str
     .input("ProductId", productId)
     .input("SizeId", sizeId)
     .input("ColorId", colorId)
-    .query("SELECT TOP 1 Id, Qty, SellingPrice FROM ProductVariants WHERE ProductId=@ProductId AND SizeId=@SizeId AND ColorId=@ColorId");
+    .query(
+      "SELECT TOP 1 Id, Qty, SellingPrice FROM ProductVariants WHERE ProductId=@ProductId AND SizeId=@SizeId AND ColorId=@ColorId"
+    );
 
   let variant = check.recordset[0];
   let variantId = variant?.Id;
   let prevQty = variant?.Qty ?? 0;
 
+  // If variant not exists → create one
   if (!variantId) {
     const ins = await pool
       .request()
@@ -124,37 +135,43 @@ export async function quickStock(productId: string, sizeId: string, colorId: str
     prevQty = 0;
   }
 
-  // Update product variant stock
+  // Determine actual quantity change
+  const changeQty = action === "remove" ? -Math.abs(qty) : Math.abs(qty);
+
+  // Prevent negative stock
+  const newQty = prevQty + changeQty;
+  if (newQty < 0) {
+    throw new Error(`Cannot remove ${qty} units — only ${prevQty} in stock.`);
+  }
+
+  // Update ProductVariants table
   await pool
     .request()
     .input("Id", variantId)
-    .input("Qty", qty)
+    .input("ChangeQty", changeQty)
     .input("Price", price)
-    .query(
-      `UPDATE ProductVariants 
-       SET Qty = Qty + @Qty, 
-           SellingPrice = CASE WHEN @Price>0 THEN @Price ELSE SellingPrice END
-       WHERE Id=@Id`
-    );
+    .query(`
+      UPDATE ProductVariants 
+      SET Qty = Qty + @ChangeQty,
+          SellingPrice = CASE WHEN @Price > 0 THEN @Price ELSE SellingPrice END
+      WHERE Id = @Id
+    `);
 
-  // Get new qty after update
-  const newRes = await pool.request().input("Id", variantId).query("SELECT Qty, SellingPrice FROM ProductVariants WHERE Id=@Id");
-  const newQty = newRes.recordset[0]?.Qty ?? prevQty + qty;
-  const newPrice = newRes.recordset[0]?.SellingPrice ?? price;
-
-  // Log history
+  // Log Stock History
   await pool
     .request()
     .input("VariantId", variantId)
-    .input("Qty", qty)
-    .input("Reason", qty > 0 ? "add" : "remove")
+    .input("ChangeQty", changeQty)
+    .input("Reason", action)
     .input("PreviousQty", prevQty)
     .input("NewQty", newQty)
-    .input("PriceAtChange", newPrice)
+    .input("PriceAtChange", price)
     .query(`
-      INSERT INTO StockHistory (VariantId, ChangeQty, Reason, PreviousQty, NewQty, PriceAtChange)
-      VALUES (@VariantId, @Qty, @Reason, @PreviousQty, @NewQty, @PriceAtChange)
+      INSERT INTO StockHistory 
+      (VariantId, ChangeQty, Reason, PreviousQty, NewQty, PriceAtChange, CreatedAt)
+      VALUES (@VariantId, @ChangeQty, @Reason, @PreviousQty, @NewQty, @PriceAtChange, GETDATE())
     `);
 }
+
 
 
