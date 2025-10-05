@@ -27,6 +27,7 @@ import {
   Plus,
   Trash2,
   Edit,
+  AlertTriangle,
   X,
 } from "lucide-react";
 
@@ -49,6 +50,8 @@ export default function StocksPage() {
 
   // Modals
   const [editItem, setEditItem] = useState<any | null>(null); // {type, id, name, cost, sell}
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [pendingRemove, setPendingRemove] = useState(false);
 
   useEffect(() => {
     refreshLookups();
@@ -87,11 +90,29 @@ export default function StocksPage() {
       return;
     }
 
+    if (action === "remove") {
+      setShowConfirm(true);
+      return;
+    }
+
+    await performStockAction("add", productId, sizeId, colorId, qty, price);
+  }
+
+  async function performStockAction(
+    action: "add" | "remove",
+    productId: string,
+    sizeId: string,
+    colorId: string,
+    qty: number,
+    price: number
+  ) {
     try {
+      setPendingRemove(true);
       await quickStock(productId, sizeId, colorId, qty, price, action);
       toast.success(
         `Stock ${action === "add" ? "added" : "removed"} successfully!`
       );
+      setShowConfirm(false);
 
       // clear fields
       ["qProduct", "qSize", "qColor", "qQty", "qCost"].forEach((id) => {
@@ -102,6 +123,8 @@ export default function StocksPage() {
       });
     } catch (e: any) {
       toast.error(e.message);
+    } finally {
+      setPendingRemove(false);
     }
   }
 
@@ -551,24 +574,23 @@ export default function StocksPage() {
             />
           </div>
 
+          {/* Quick Stock Buttons */}
           <div className="flex flex-col md:flex-row gap-3">
             <button
-              onClick={async () => {
-                await handleQuickStock("remove");
-              }}
+              onClick={async () => await handleQuickStock("remove")}
               className="w-full bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
             >
               − Remove Stock
             </button>
             <button
-              onClick={async () => {
-                await handleQuickStock("add");
-              }}
+              onClick={async () => await handleQuickStock("add")}
               className="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
             >
               + Add Stock
             </button>
           </div>
+
+          
         </div>
       </section>
 
@@ -654,6 +676,73 @@ export default function StocksPage() {
           </div>
         </div>
       )}
+
+      {/* 🧾 Confirmation Modal */}
+          {showConfirm && (
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 w-full max-w-md p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="bg-red-100 dark:bg-red-900/30 p-3 rounded-full">
+                    <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                    Confirm Stock Removal
+                  </h3>
+                </div>
+
+                <p className="text-gray-700 dark:text-gray-300 mb-6">
+                  Are you sure you want to remove this stock quantity? This
+                  action will reduce available stock and cannot be undone.
+                </p>
+
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setShowConfirm(false)}
+                    className="px-5 py-2.5 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={async () => {
+                      const productId = (
+                        document.getElementById("qProduct") as HTMLSelectElement
+                      ).value;
+                      const sizeId = (
+                        document.getElementById("qSize") as HTMLSelectElement
+                      ).value;
+                      const colorId = (
+                        document.getElementById("qColor") as HTMLSelectElement
+                      ).value;
+                      const qty = parseInt(
+                        (document.getElementById("qQty") as HTMLInputElement)
+                          .value
+                      );
+                      const price = Number(
+                        (document.getElementById("qCost") as HTMLInputElement)
+                          .value
+                      );
+                      await performStockAction(
+                        "remove",
+                        productId,
+                        sizeId,
+                        colorId,
+                        qty,
+                        price
+                      );
+                    }}
+                    disabled={pendingRemove}
+                    className={`px-6 py-2.5 rounded-lg font-semibold text-white ${
+                      pendingRemove
+                        ? "bg-red-400 cursor-not-allowed"
+                        : "bg-red-600 hover:bg-red-700"
+                    } transition-colors`}
+                  >
+                    {pendingRemove ? "Removing..." : "Confirm Remove"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
     </div>
   );
 }
