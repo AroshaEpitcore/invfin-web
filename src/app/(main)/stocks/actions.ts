@@ -99,14 +99,18 @@ export async function deleteProduct(id: string) {
 export async function quickStock(productId: string, sizeId: string, colorId: string, qty: number, price: number) {
   const pool = await getDb();
 
+  // Find or create variant
   const check = await pool
     .request()
     .input("ProductId", productId)
     .input("SizeId", sizeId)
     .input("ColorId", colorId)
-    .query("SELECT TOP 1 Id FROM ProductVariants WHERE ProductId=@ProductId AND SizeId=@SizeId AND ColorId=@ColorId");
+    .query("SELECT TOP 1 Id, Qty, SellingPrice FROM ProductVariants WHERE ProductId=@ProductId AND SizeId=@SizeId AND ColorId=@ColorId");
 
-  let variantId = check.recordset[0]?.Id;
+  let variant = check.recordset[0];
+  let variantId = variant?.Id;
+  let prevQty = variant?.Qty ?? 0;
+
   if (!variantId) {
     const ins = await pool
       .request()
@@ -117,8 +121,10 @@ export async function quickStock(productId: string, sizeId: string, colorId: str
         "INSERT INTO ProductVariants (ProductId, SizeId, ColorId, Qty) OUTPUT Inserted.Id VALUES (@ProductId,@SizeId,@ColorId,0)"
       );
     variantId = ins.recordset[0].Id;
+    prevQty = 0;
   }
 
+  // Update product variant stock
   await pool
     .request()
     .input("Id", variantId)
@@ -131,10 +137,24 @@ export async function quickStock(productId: string, sizeId: string, colorId: str
        WHERE Id=@Id`
     );
 
+  // Get new qty after update
+  const newRes = await pool.request().input("Id", variantId).query("SELECT Qty, SellingPrice FROM ProductVariants WHERE Id=@Id");
+  const newQty = newRes.recordset[0]?.Qty ?? prevQty + qty;
+  const newPrice = newRes.recordset[0]?.SellingPrice ?? price;
+
+  // Log history
   await pool
     .request()
     .input("VariantId", variantId)
     .input("Qty", qty)
     .input("Reason", qty > 0 ? "add" : "remove")
-    .query("INSERT INTO StockHistory (VariantId, ChangeQty, Reason) VALUES (@VariantId,@Qty,@Reason)");
+    .input("PreviousQty", prevQty)
+    .input("NewQty", newQty)
+    .input("PriceAtChange", newPrice)
+    .query(`
+      INSERT INTO StockHistory (VariantId, ChangeQty, Reason, PreviousQty, NewQty, PriceAtChange)
+      VALUES (@VariantId, @Qty, @Reason, @PreviousQty, @NewQty, @PriceAtChange)
+    `);
 }
+
+

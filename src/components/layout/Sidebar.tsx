@@ -17,8 +17,10 @@ import {
   LeafyGreen,
   Truck,
   RotateCcw,
+  Layers2,
 } from "lucide-react";
 import { Tooltip } from "react-tooltip";
+
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/inventory", label: "Inventory", icon: Boxes },
@@ -32,6 +34,7 @@ const navItems = [
   { href: "/suppliers", label: "Suppliers", icon: Truck },
   { href: "/reports", label: "Reports", icon: FileText },
   { href: "/users", label: "Users", icon: Users },
+  { href: "/stock-history", label: "Stock History", icon: Layers2 },
   { href: "/whatsapp", label: "Whatsapp", icon: MessageCircle },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
@@ -43,14 +46,16 @@ export default function Sidebar({ collapsed }: { collapsed: boolean }) {
     <aside
       className={`${
         collapsed ? "w-16" : "w-64"
-      } bg-[#0b1220] flex flex-col transition-all duration-300 ease-in-out`}
+      } bg-[#0b1220] text-gray-100 flex flex-col transition-all duration-300 ease-in-out h-screen`}
     >
-      <div className="px-4 py-5 text-gray-100 font-bold text-xl flex items-center justify-center">
+      {/* --- Fixed Top Logo --- */}
+      <div className="px-4 py-5 text-gray-100 font-bold text-xl flex items-center justify-center border-b border-gray-800 shrink-0">
         {collapsed ? <LeafyGreen className="h-6 w-6 text-green-400" /> : "EssenceFit"}
       </div>
 
-      <nav className="flex-1">
-        <ul className="space-y-1 px-2">
+      {/* --- Scrollable Middle Navigation --- */}
+      <nav className="flex-1 overflow-y-auto scrollbar-hide">
+        <ul className="space-y-1 px-2 py-3">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = pathname.startsWith(item.href);
@@ -90,6 +95,22 @@ export default function Sidebar({ collapsed }: { collapsed: boolean }) {
           })}
         </ul>
       </nav>
+
+      {/* --- Fixed Footer --- */}
+      <div className="p-3 border-t border-gray-800 text-center text-xs text-gray-500">
+        {collapsed ? "EF" : "EssenceFit © 2025"}
+      </div>
+
+      {/* --- Hidden Scrollbar CSS --- */}
+      <style jsx>{`
+        .scrollbar-hide {
+          scrollbar-width: none; /* Firefox */
+          -ms-overflow-style: none; /* IE/Edge */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none; /* Chrome/Safari */
+        }
+      `}</style>
     </aside>
   );
 }

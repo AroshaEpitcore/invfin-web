@@ -68,6 +68,43 @@ export default function StocksPage() {
     setProducts(rows);
   }
 
+  async function handleQuickStock(action: "add" | "remove") {
+    const productId = (document.getElementById("qProduct") as HTMLSelectElement)
+      .value;
+    const sizeId = (document.getElementById("qSize") as HTMLSelectElement)
+      .value;
+    const colorId = (document.getElementById("qColor") as HTMLSelectElement)
+      .value;
+    const qty = parseInt(
+      (document.getElementById("qQty") as HTMLInputElement).value
+    );
+    const price = Number(
+      (document.getElementById("qCost") as HTMLInputElement).value
+    );
+
+    if (!productId || !sizeId || !colorId || !qty) {
+      toast.error("Please fill all fields!");
+      return;
+    }
+
+    try {
+      await quickStock(productId, sizeId, colorId, qty, price, action);
+      toast.success(
+        `Stock ${action === "add" ? "added" : "removed"} successfully!`
+      );
+
+      // clear fields
+      ["qProduct", "qSize", "qColor", "qQty", "qCost"].forEach((id) => {
+        const el = document.getElementById(id) as
+          | HTMLInputElement
+          | HTMLSelectElement;
+        if (el) el.value = "";
+      });
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  }
+
   // ------------------- CRUD Handlers -------------------
   async function handleAddCategory() {
     try {
@@ -439,12 +476,11 @@ export default function StocksPage() {
           )}
         </div>
       </section>
-
       {/* Quick Stock Section */}
       <section className="mt-8">
         <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
           <Plus className="w-5 h-5 text-primary" />
-          Quick Add/Remove Stock
+          Quick Add / Remove Stock
         </h2>
         <div className="bg-white dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200 dark:border-gray-700 p-5 rounded-xl">
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-4">
@@ -463,6 +499,7 @@ export default function StocksPage() {
                 </option>
               ))}
             </select>
+
             <select
               id="qProduct"
               className="bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
@@ -474,6 +511,7 @@ export default function StocksPage() {
                 </option>
               ))}
             </select>
+
             <select
               id="qSize"
               className="bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
@@ -485,6 +523,7 @@ export default function StocksPage() {
                 </option>
               ))}
             </select>
+
             <select
               id="qColor"
               className="bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
@@ -496,63 +535,40 @@ export default function StocksPage() {
                 </option>
               ))}
             </select>
+
             <input
               id="qQty"
               type="number"
               placeholder="Qty"
               className="bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
             />
+
             <input
               id="qCost"
               type="number"
-              placeholder="Cost"
+              placeholder="Price"
               className="bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
             />
           </div>
-          <button
-            onClick={async () => {
-              const productId = (
-                document.getElementById("qProduct") as HTMLSelectElement
-              ).value;
-              const sizeId = (
-                document.getElementById("qSize") as HTMLSelectElement
-              ).value;
-              const colorId = (
-                document.getElementById("qColor") as HTMLSelectElement
-              ).value;
-              const qty = parseInt(
-                (document.getElementById("qQty") as HTMLInputElement).value
-              );
-              const price = Number(
-                (document.getElementById("qCost") as HTMLInputElement).value
-              );
-              if (!productId || !sizeId || !colorId || !qty) {
-                toast.error("Fill all fields");
-                return;
-              }
-              try {
-                await quickStock(productId, sizeId, colorId, qty, price);
-                toast.success("Stock updated!");
-                // Clear inputs
-                (
-                  document.getElementById("qProduct") as HTMLSelectElement
-                ).value = "";
-                (document.getElementById("qSize") as HTMLSelectElement).value =
-                  "";
-                (document.getElementById("qColor") as HTMLSelectElement).value =
-                  "";
-                (document.getElementById("qQty") as HTMLInputElement).value =
-                  "";
-                (document.getElementById("qCost") as HTMLInputElement).value =
-                  "";
-              } catch (e: any) {
-                toast.error(e.message);
-              }
-            }}
-            className="w-full bg-primary hover:bg-primary/90 transition-colors px-6 py-3 rounded-lg font-semibold text-white"
-          >
-            Add Stock
-          </button>
+
+          <div className="flex flex-col md:flex-row gap-3">
+            <button
+              onClick={async () => {
+                await handleQuickStock("remove");
+              }}
+              className="w-full bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+            >
+              − Remove Stock
+            </button>
+            <button
+              onClick={async () => {
+                await handleQuickStock("add");
+              }}
+              className="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+            >
+              + Add Stock
+            </button>
+          </div>
         </div>
       </section>
 
